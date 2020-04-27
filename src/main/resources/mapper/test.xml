@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Mybatis 사용 -->
+<mapper namespace="pp">
+
+	<select id="LoginPro" parameterType="vo.UserVO" resultType="vo.UserVO">
+		select * from "BSG-COMMON".MUSR where MBUSER = #{MBUSER} and MBPW = #{MBPW}
+	</select>
+	
+	<insert id="JoinPro" parameterType="vo.UserVO">
+		insert into "BSG-COMMON".MUSR (MBUSER, MBPW) values(#{MBUSER}, #{MBPW})
+	</insert>
+	
+	<select id="ListPro" parameterType="vo.ListVO" resultType="vo.ListVO">
+		<choose>			
+			<when test = "CardCode == '' or CardCode == null">		
+				SELECT "CardCode", "CardName" FROM "TECH_DEV".OCRD WHERE "CardType" = 'C' AND "frozenFor" = 'N';			
+			</when>			
+			<otherwise>			
+				SELECT "CardCode", "CardName" FROM "TECH_DEV".OCRD WHERE "CardType" = 'C' AND "frozenFor" = 'N';	
+			</otherwise>			
+		</choose>
+	</select>
+	
+	<select id="OrderList" parameterType="vo.OrderVO" resultType="vo.OrderVO">
+		SELECT
+			 A."DocNum"
+			, A."DocEntry" 
+			, B."VisOrder" 
+			, A."DocDate" 
+			, B."ItemCode" 
+			, C."ItemName" 
+			, B."WhsCode" 
+			, D."WhsName" 
+			, B."Quantity" 
+			, B."Price" 
+			, B."LineTotal" 
+			, IFNULL(E."OnHand", 0) as "OnHand"
+			FROM
+			"TECH_DEV".ORDR A
+			INNER JOIN "TECH_DEV".RDR1 B ON A."DocEntry" = B."DocEntry"
+			INNER JOIN "TECH_DEV".OITM C ON B."ItemCode" = C."ItemCode"
+			INNER JOIN "TECH_DEV".OWHS D ON B."WhsCode" = D."WhsCode"
+			INNER JOIN "TECH_DEV".OITW E ON B."ItemCode" = E."ItemCode"
+			AND B."WhsCode" = E."WhsCode"
+			WHERE
+			A."DocDate" BETWEEN #{startDate} AND #{endDate}
+			AND A."DocStatus" = #{DocStatus}
+			AND A."DocType" = 'I'
+			AND A."CardCode" = #{CardCode} 
+			;
+	</select>
+	
+	<select id="OrderDetail" parameterType="vo.OrderVO" resultType="vo.OrderVO">
+		SELECT
+			 A."DocNum"
+			, A."DocEntry" 
+			, B."VisOrder" 
+			, A."DocDate" 
+			, B."ItemCode" 
+			, C."ItemName" 
+			, B."WhsCode" 
+			, D."WhsName" 
+			, B."Quantity" 
+			, B."Price" 
+			, B."LineTotal" 
+			, IFNULL(E."OnHand", 0) as "OnHand"
+			FROM
+			"TECH_DEV".ORDR A
+			INNER JOIN "TECH_DEV".RDR1 B ON A."DocEntry" = B."DocEntry"
+			INNER JOIN "TECH_DEV".OITM C ON B."ItemCode" = C."ItemCode"
+			INNER JOIN "TECH_DEV".OWHS D ON B."WhsCode" = D."WhsCode"
+			INNER JOIN "TECH_DEV".OITW E ON B."ItemCode" = E."ItemCode"
+			AND B."WhsCode" = E."WhsCode"
+			WHERE
+			A."DocDate" BETWEEN #{startDate} AND #{endDate}
+			AND A."DocStatus" = #{DocStatus}
+			AND A."DocType" = 'I'
+			AND A."CardCode" = #{CardCode} 
+			AND B."VisOrder" = #{VisOrder} 
+			AND A."DocEntry" = #{DocEntry}
+			;
+	</select>
+
+</mapper>
